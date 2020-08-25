@@ -7,13 +7,7 @@
 #
 ###############################################################################
 
-if [ $MACHINE_ID = wcoss ]; then
-
-  TASKS_dflt=144 ; TPN_dflt=16 ; INPES_dflt=3 ; JNPES_dflt=8
-  TASKS_stretch=48 ; TPN_stretch=12 ; INPES_stretch=2 ; JNPES_stretch=4
-  TASKS_strnest=96 ; TPN_strnest=12 ; INPES_strnest=2 ; JNPES_strnest=4
-
-elif [ $MACHINE_ID = wcoss_cray ]; then
+if [ $MACHINE_ID = wcoss_cray ]; then
 
   TASKS_dflt=150 ; TPN_dflt=24 ; INPES_dflt=3 ; JNPES_dflt=8
   TASKS_thrd=84  ; TPN_thrd=12 ; INPES_thrd=3 ; JNPES_thrd=4
@@ -163,8 +157,10 @@ export EXTERNAL_IC=.T.
 export MAKE_NH=.T.
 export MOUNTAIN=.F.
 export NA_INIT=1
+
 # Radiation
 export DO_RRTMGP=.F.
+
 # Microphysics
 export IMP_PHYSICS=11
 # GFDL MP
@@ -194,10 +190,13 @@ export DO_MYJPBL=.F.
 
 # Shallow/deep convection
 export IMFSHALCNV=2
+export HWRF_SAMFSHAL=.F.
 export IMFDEEPCNV=2
+export HWRF_SAMFDEEP=.F.
 
 # SFC
 export DO_MYJSFC=.F.
+export DO_MYNNSFCLAY=.F.
 
 # LSM
 export LSM=1
@@ -209,7 +208,7 @@ export OZ_PHYS_OLD=.T.
 export OZ_PHYS_NEW=.F.
 export H2O_PHYS=.F.
 
-export CPL=.F. #TODO fv3_defaults use CPL=.false. check equivalency.
+export CPL=.F.
 export CPLFLX=.F.
 export CPLWAV=.F.
 export CPLWAV2ATM=.F.
@@ -238,6 +237,9 @@ export SHOUR=00
 export FHMAX=${FHMAX:-`expr $DAYS \* 24`}
 export DT_ATMOS=1800
 export FHCYC=24
+export LDIAG3D=.F.
+export QDIAG3D=.F.
+export MAX_OUTPUT_FIELDS=300
 
 # Stochastic physics
 export DO_SPPT=.F.
@@ -256,6 +258,9 @@ export IAU_DRYMASSFIXER=.false.
 export DO_CA=.F.
 export CA_SGS=.F.
 export CA_GLOBAL=.F.
+
+# Regional
+export WRITE_RESTART_WITH_BCS=.false.
 }
 
 export_cpl ()

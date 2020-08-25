@@ -15,7 +15,7 @@ fi
 
 readonly PATHTR=$1
 readonly BUILD_TARGET=$2
-readonly MAKE_OPT=${3:-}
+MAKE_OPT=${3:-}
 readonly BUILD_NAME=fcst${4:+_$4}
 
 readonly clean_before=${5:-YES}
@@ -43,14 +43,17 @@ if [[ $BUILD_TARGET == cheyenne.* || $BUILD_TARGET == stampede.* ]] ; then
     MAKE_THREADS=${MAKE_THREADS:-3}
 fi
 
-# CMEPS component fails to build when using multiple threads, thus set to 1
-MAKE_THREADS=${MAKE_THREADS:-1}
+echo "FROM COMPILE.SH=============== S2S is $S2S"
+if [[ $S2S == true ]]; then
+  MAKE_THREADS=${MAKE_THREADS:-1}
+else
+  MAKE_THREADS=${MAKE_THREADS:-8}
+fi
 
 if [[ "$MAKE_THREADS" -gt 1 ]] ; then
     echo Using \$MAKE_THREADS=$MAKE_THREADS threads to build FV3 and FMS.
     echo Consider reducing \$MAKE_THREADS if you hit memory or process limits.
     gnu_make="$gnu_make -j $MAKE_THREADS"
-    #gnu_make="$gnu_make"
 fi
 
 # ----------------------------------------------------------------------
@@ -61,7 +64,7 @@ cd "$PATHTR/../NEMS"
 
 COMPONENTS="FMS,FV3"
 if [[ "${MAKE_OPT}" == *"CCPP=Y"* ]]; then
-  COMPONENTS="$COMPONENTS,CCPP"
+  COMPONENTS="CCPP,$COMPONENTS"
 
   # Check if suites argument is provided or not
   set +ex
@@ -109,7 +112,7 @@ if [[ "${MAKE_OPT}" == *"CMEPS=Y"* ]]; then
   COMPONENTS="$COMPONENTS,CMEPS"
 fi
 
-if [[ "${MAKE_OPT}" == *"DEBUG=Y"* ]]; then
+if [[ $S2S == true && "${MAKE_OPT}" == *"DEBUG=Y"* ]]; then
   export S2S_DEBUG_MODULE=true
 fi
 
