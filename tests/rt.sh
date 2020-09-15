@@ -469,7 +469,7 @@ if [[ $MACHINE_ID = hera.* ]] || [[ $MACHINE_ID = orion.* ]] || [[ $MACHINE_ID =
   fi
 else
   if [ $S2S == true ]; then
-    RTPWD=${RTPWD:-$DISKNM/FV3-MOM6-CICE5/develop-20200812}
+    RTPWD=${RTPWD:-$DISKNM/FV3-MOM6-CICE5/develop-20200907}
   else
     RTPWD=${RTPWD:-$DISKNM/NEMSfv3gfs/develop-20200812}
   fi
