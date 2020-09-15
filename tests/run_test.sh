@@ -104,12 +104,9 @@ if [ $S2S == true ]; then
   edit_diag_table < ${PATHTR}/parm/diag_table_template > diag_table
   edit_data_table < ${PATHTR}/parm/data_table_template > data_table
 
-  # CMEPS 
-  if [[ $MEDCOMP != '' ]]; then
-    cp ${PATHTR}/parm/fd_nems.yaml fd_nems.yaml
-    cp ${PATHTR}/parm/pio_in pio_in
-    cp ${PATHTR}/parm/med_modelio.nml med_modelio.nml
-  fi
+  cp ${PATHTR}/parm/fd_nems.yaml fd_nems.yaml
+  cp ${PATHTR}/parm/pio_in pio_in
+  cp ${PATHTR}/parm/med_modelio.nml med_modelio.nml
 fi
 
 if [[ "Q${INPUT_NEST02_NML:-}" != Q ]] ; then
