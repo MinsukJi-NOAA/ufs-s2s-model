@@ -82,10 +82,10 @@ cp ${PATHRT}/modules.fcst_${COMPILE_NR}             modules.fcst
 # Get the shell file that loads the "module" command and purges modules:
 cp ${PATHRT}/../NEMS/src/conf/module-setup.sh.inc  module-setup.sh
 if [ $S2S != true ]; then
-  cp ${PATHTR}/parm/post_itag itag
-  cp ${PATHTR}/parm/postxconfig-NT.txt postxconfig-NT.txt
-  cp ${PATHTR}/parm/postxconfig-NT_FH00.txt postxconfig-NT_FH00.txt
-  cp ${PATHTR}/parm/params_grib2_tbl_new params_grib2_tbl_new
+  cp ${PATHTR}/parm_weather/post_itag itag
+  cp ${PATHTR}/parm_weather/postxconfig-NT.txt postxconfig-NT.txt
+  cp ${PATHTR}/parm_weather/postxconfig-NT_FH00.txt postxconfig-NT_FH00.txt
+  cp ${PATHTR}/parm_weather/params_grib2_tbl_new params_grib2_tbl_new
 fi
 
 SRCD="${PATHTR}"
@@ -94,23 +94,28 @@ RUND="${RUNDIR}"
 # Set up the run directory
 atparse < ${PATHRT}/fv3_conf/${FV3_RUN:-fv3_run.IN} > fv3_run
 source ./fv3_run
-
-atparse < ${PATHTR}/parm/${INPUT_NML:-input.nml.IN} > input.nml
-atparse < ${PATHTR}/parm/${MODEL_CONFIGURE:-model_configure.IN} > model_configure
-atparse < ${PATHTR}/parm/${NEMS_CONFIGURE:-nems.configure} > nems.configure
+if [ $S2S != true ]; then
+  atparse < ${PATHTR}/parm_weather/${INPUT_NML:-input.nml.IN} > input.nml
+  atparse < ${PATHTR}/parm_weather/${MODEL_CONFIGURE:-model_configure.IN} > model_configure
+  atparse < ${PATHTR}/parm_weather/${NEMS_CONFIGURE:-nems.configure} > nems.configure
+else
+  atparse < ${PATHTR}/parm_s2s/${INPUT_NML:-input.nml.IN} > input.nml
+  atparse < ${PATHTR}/parm_s2s/${MODEL_CONFIGURE:-model_configure.IN} > model_configure
+  atparse < ${PATHTR}/parm_s2s/${NEMS_CONFIGURE:-nems.configure} > nems.configure
+fi
 if [ $S2S == true ]; then
-  edit_ice_in < ${PATHTR}/parm/ice_in_template > ice_in
-  edit_mom_input < ${PATHTR}/parm/${MOM_INPUT:-MOM_input_template_$OCNRES} > INPUT/MOM_input
-  edit_diag_table < ${PATHTR}/parm/diag_table_template > diag_table
-  edit_data_table < ${PATHTR}/parm/data_table_template > data_table
+  edit_ice_in < ${PATHTR}/parm_s2s/ice_in_template > ice_in
+  edit_mom_input < ${PATHTR}/parm_s2s/${MOM_INPUT:-MOM_input_template_$OCNRES} > INPUT/MOM_input
+  edit_diag_table < ${PATHTR}/parm_s2s/diag_table_template > diag_table
+  edit_data_table < ${PATHTR}/parm_s2s/data_table_template > data_table
 
-  cp ${PATHTR}/parm/fd_nems.yaml fd_nems.yaml
-  cp ${PATHTR}/parm/pio_in pio_in
-  cp ${PATHTR}/parm/med_modelio.nml med_modelio.nml
+  cp ${PATHTR}/parm_s2s/fd_nems.yaml fd_nems.yaml
+  cp ${PATHTR}/parm_s2s/pio_in pio_in
+  cp ${PATHTR}/parm_s2s/med_modelio.nml med_modelio.nml
 fi
 
 if [[ "Q${INPUT_NEST02_NML:-}" != Q ]] ; then
-    atparse < ${PATHTR}/parm/${INPUT_NEST02_NML} > input_nest02.nml
+    atparse < ${PATHTR}/parm_weather/${INPUT_NEST02_NML} > input_nest02.nml
 fi
 
 if [[ $SCHEDULER = 'pbs' ]]; then
@@ -135,18 +140,30 @@ elif [[ $SCHEDULER = 'lsf' ]]; then
   fi
   atparse < $PATHRT/fv3_conf/fv3_bsub.IN > job_card
 fi
-
-atparse < ${PATHTR}/parm/${NEMS_CONFIGURE:-nems.configure} > nems.configure
+if [ $S2S != true ]; then
+atparse < ${PATHTR}/parm_weather/${NEMS_CONFIGURE:-nems.configure} > nems.configure
+else
+atparse < ${PATHTR}/parm_s2s/${NEMS_CONFIGURE:-nems.configure} > nems.configure
+fi
 
 ################################################################################
 # Submit test job
 ################################################################################
 
-if [[ $ROCOTO = 'false' ]]; then
-  submit_and_wait job_card
+if [[ $SCHEDULER = 'none' ]]; then
+
+  ulimit -s unlimited
+  mpiexec -n ${TASKS} ./fv3.exe >out 2> >(tee err >&3)
+
 else
-  chmod u+x job_card
-  ./job_card
+
+  if [[ $ROCOTO = 'false' ]]; then
+    submit_and_wait job_card
+  else
+    chmod u+x job_card
+    ./job_card
+  fi
+
 fi
 
 if [[ $S2S == true ]]; then

@@ -300,27 +300,28 @@ elif [[ $MACHINE_ID = jet.* ]]; then
   # Re-instantiate COMPILER in case it gets deleted by module purge
   COMPILER=${NEMS_COMPILER:-intel}
 
-  module load rocoto/1.3.1
+  module load rocoto/1.3.2
   ROCOTORUN=$(which rocotorun)
   ROCOTOSTAT=$(which rocotostat)
   ROCOTOCOMPLETE=$(which rocotocomplete)
   ROCOTO_SCHEDULER=slurm
 
-  export PATH=/mnt/lfs3/projects/hfv3gfs/Dusan.Jovic/ecflow/bin:$PATH
-  export PYTHONPATH=/mnt/lfs3/projects/hfv3gfs/Dusan.Jovic/ecflow/lib/python2.7/site-packages
-  ECFLOW_START=/mnt/lfs3/projects/hfv3gfs/Dusan.Jovic/ecflow/bin/ecflow_start.sh
+  export PATH=/lfs4/HFIP/hfv3gfs/software/ecFlow-5.3.1/bin:$PATH
+  export PYTHONPATH=/lfs4/HFIP/hfv3gfs/software/ecFlow-5.3.1/lib/python2.7/site-packages
+  ECFLOW_START=/lfs4/HFIP/hfv3gfs/software/ecFlow-5.3.1/bin/ecflow_start.sh
   ECF_PORT=$(( $(id -u) + 1500 ))
-  QUEUE=debug
+  QUEUE=batch
   COMPILE_QUEUE=batch
   ACCNR=hfv3gfs
   PARTITION=xjet
-  DISKNM=/lfs3/projects/hfv3gfs/GMTB/RT
-  dprefix=/lfs3/projects/hfv3gfs/$USER
+  DISKNM=/lfs4/HFIP/hfv3gfs/RT
+  dprefix=/lfs4/HFIP/hfv3gfs/$USER
   STMP=$dprefix/RT_BASELINE
   PTMP=$dprefix/RT_RUNDIRS
 
   SCHEDULER=slurm
   cp fv3_conf/fv3_slurm.IN_jet fv3_conf/fv3_slurm.IN
+  cp fv3_conf/compile_slurm.IN_jet fv3_conf/compile_slurm.IN
 
 elif [[ $MACHINE_ID = cheyenne.* ]]; then
 
@@ -392,10 +393,6 @@ wf_max_builds=10
 
 TESTS_FILE='rt_weather.conf'
 
-if [[ $MACHINE_ID = orion.* ]]; then
-  TESTS_FILE='rt_orion.conf'
-fi
-
 while getopts ":acfsl:mn:kreh" opt; do
   case $opt in
     a)
@@ -461,17 +458,17 @@ if [[ $TESTS_FILE =~ '35d' ]]; then
   TEST_35D=true
 fi
 
-if [[ $MACHINE_ID = hera.* ]] || [[ $MACHINE_ID = orion.* ]] || [[ $MACHINE_ID = cheyenne.* ]]; then
+if [[ $MACHINE_ID = hera.* ]] || [[ $MACHINE_ID = orion.* ]] || [[ $MACHINE_ID = cheyenne.* ]] || [[ $MACHINE_ID = jet.* ]]; then
   if [ $S2S == true ]; then
     RTPWD=${RTPWD:-$DISKNM/FV3-MOM6-CICE5/develop-20200907}
   else
-    RTPWD=${RTPWD:-$DISKNM/NEMSfv3gfs/develop-20200812/${COMPILER^^}}
+    RTPWD=${RTPWD:-$DISKNM/NEMSfv3gfs/develop-20200917/${COMPILER^^}}
   fi
 else
   if [ $S2S == true ]; then
     RTPWD=${RTPWD:-$DISKNM/FV3-MOM6-CICE5/develop-20200907}
   else
-    RTPWD=${RTPWD:-$DISKNM/NEMSfv3gfs/develop-20200812}
+    RTPWD=${RTPWD:-$DISKNM/NEMSfv3gfs/develop-20200917}
   fi
 fi
 
